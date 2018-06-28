@@ -7,3 +7,6 @@ eureka:
   client:
     service-url:
       defaultZone: http://192.168.3.116:8761/eureka/
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
