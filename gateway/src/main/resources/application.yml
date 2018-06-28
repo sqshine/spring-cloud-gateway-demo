@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+      routes:
+      - id: monolith3
+#        uri: lb://hello
+        uri: http://192.168.90.186:8081
+        predicates:
+        - Path=/a/service/ra/**
+        filters:
+        - StripPrefix=1
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE
+eureka:
+  client:
+#    register-with-eureka: false
+    service-url:
+      defaultZone: http://192.168.3.116:8761/eureka/
+
+
+#management:
+#  endpoints:
+#    jmx:
+#      exposure:
+#        include: '*'
+
+

@@ -1,0 +1,14 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: customer-service
+  data:
+    mongodb:
+      uri: mongodb://ssqian:bGaVRKi39EDR0ozPQPWzr92Y@192.168.3.193:27017/ssqian?maxPoolSize=500&waitQueueMultiple=1000&waitQueueTimeoutMS=10000&journal=true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.3.116:8761/eureka/
+
+

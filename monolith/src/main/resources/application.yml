@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: monolith
+server:
+  port: 8081
+eureka:
+  client:
+    service-url:
+      defaultZone: http://192.168.3.116:8761/eureka/
+
