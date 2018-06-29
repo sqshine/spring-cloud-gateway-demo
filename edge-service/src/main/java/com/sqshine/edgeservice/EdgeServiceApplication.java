@@ -8,11 +8,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 /**
  * @author sqshine
  */
+@RestController
 @SpringCloudApplication
 public class EdgeServiceApplication {
 
@@ -47,11 +54,43 @@ public class EdgeServiceApplication {
                 .route("cf2", p -> p.path("/cf2/**")
                         .filters(f -> f.rewritePath("/cf2/(?<segment>.*)", "/customers/${segment}"))
                         .uri("lb://customer-service"))
-
+                //circuit breaker
+                .route("hystrix_route", p -> p.path("/hs")
+                        .filters(f -> f.hystrix(c -> c.setFallbackUri("forward:/cb")))
+                        .uri("lb://customer-service"))
 
                 .build();
     }
 
+    /**
+     * authentication
+     */
+    @Bean
+    MapReactiveUserDetailsService authentication() {
+        return new MapReactiveUserDetailsService(User.withDefaultPasswordEncoder()
+                .username("user")
+                .password("pwd")
+                .roles("USER")
+                .build());
+    }
+
+    /**
+     * anthorization
+     */
+    @Bean
+    SecurityWebFilterChain authorization(ServerHttpSecurity security) {
+        return security.authorizeExchange().pathMatchers("/cf").authenticated()
+                .anyExchange().permitAll()
+                .and()
+                .httpBasic()
+                .and()
+                .build();
+    }
+
+    @RequestMapping("/cb")
+    public String defaultFortune() {
+        return "When you feel sad:hystrix circuit breaker.";
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(EdgeServiceApplication.class, args);
